@@ -1,5 +1,6 @@
 ### docker command of postgresDB
-```docker run -it \
+```
+docker run -it \
     -e POSTGRES_USER="root" \
     -e POSTGRES_PASSWORD="root" \
     -e POSTGRES_DB="ny_taxi" \
@@ -13,7 +14,8 @@ postgres:13
 ```https://github.com/DataTalksClub/nyc-tlc-data```
 
 ### image of pgadin
-```docker run -it \
+```
+docker run -it \
     -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
     -e PGADMIN_DEFAULT_PASSWORD="root" \
     -p 8080:80 \
