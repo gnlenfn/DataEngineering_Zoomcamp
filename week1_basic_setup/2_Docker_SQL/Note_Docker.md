@@ -11,7 +11,9 @@ postgres:13
 ```
 
 ### ny_yellow_taxi csv data
-```https://github.com/DataTalksClub/nyc-tlc-data```
+```
+https://github.com/DataTalksClub/nyc-tlc-data
+```
 
 ### image of pgadin
 ```
@@ -78,3 +80,68 @@ docker run -it \
         --table_name=yellow_taxi_trips \
         --url=${URL}
 ```
+
+### After ingest zone data...
+```SQL
+SELECT 
+	tpep_pickup_datetime,
+	tpep_dropoff_datetime,
+	total_amount,
+	CONCAT(zpu."Borough", ' / ', zpu."Zone") AS "pickup_loc",
+	CONCAT(zpu."Borough", ' / ', zdo."Zone") AS "dropoff_loc"
+FROM 
+	yellow_taxi_trips t,
+	zones zpu,
+	zones zdo
+WHERE
+	t."PULocationID" = zpu."LocationID" AND
+	t."DOLocationID" = zdo."LocationID"
+
+LIMIT 100;
+
+--- 같은 결과 JOIN으로
+
+SELECT 
+	tpep_pickup_datetime,
+	tpep_dropoff_datetime,
+	total_amount,
+	CONCAT(zpu."Borough", ' / ', zpu."Zone") AS "pickup_loc",
+	CONCAT(zpu."Borough", ' / ', zdo."Zone") AS "dropoff_loc"
+FROM 
+	yellow_taxi_trips t JOIN zones zpu
+		ON t."PULocationID" = zpu."LocationID"
+	JOIN zones zdo
+		ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+```
+
+- yellow taxi table에서 사용되지 않은 zones의 LocationID 찾기
+- 모든 데이터가 사용되어서 아무것도 안나옴
+```SQL
+SELECT 
+ 	tpep_pickup_datetime,
+	tpep_dropoff_datetime,
+	total_amount,
+	"PULocationID",
+	"DOLocationID"
+FROM 
+	yellow_taxi_trips t 
+WHERE
+	"DOLocationID" is NULL
+LIMIT 100;
+
+SELECT 
+ 	tpep_pickup_datetime,
+	tpep_dropoff_datetime,
+	total_amount,
+	"PULocationID",
+	"DOLocationID"
+FROM 
+	yellow_taxi_trips t 
+WHERE
+	"PULocationID" NOT IN (
+		SELECT "LocationID" FROM zones)
+LIMIT 100;
+```
+
+- LEFT JOIN, GROUP BY 등등..
